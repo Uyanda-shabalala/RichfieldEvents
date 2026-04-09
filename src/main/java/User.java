@@ -1,16 +1,14 @@
 abstract class User {
-
-    private String name;
-    private String email="@my.richfield.ac.za";
+    protected String name;
+    protected String email;
 
     public User(String name, String email) {
         this.name = name;
-        this.email = email ;
+        this.email = email;
     }
 
-    abstract String getName();
-    abstract String getEmail();
-    abstract String getRole();
+    public String getName()  { return name; }
+    public String getEmail() { return email; }
 
-
+    public abstract String getRole();  // only this varies per subclass
 }
