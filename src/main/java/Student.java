@@ -1,100 +1,105 @@
-
 import java.util.*;
 
 public class Student extends User {
 
-    private int studentNumber;
-    private String course;
-     final  String role="Student";
-     List <Event> registeredEvents= new ArrayList<>(); //stores events the student object is registered for
+  final String role = "Student";
+  List<Event> registeredEvents =
+      new ArrayList<>(); // stores events the student object is registered for
+  private int studentNumber;
+  private String course;
 
-    public Student(String name, int studentNumber, String course, String email) {
-        super(name, email);
+  public Student(String name, int studentNumber, String course, String email) {
+    super(name, email);
 
-        this.course = course;
+    this.course = course;
+  }
 
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public int getStudentNumber() {
+    return studentNumber;
+  }
+
+  public void setStudentNumber(int studentNumber) {
+    this.studentNumber = studentNumber;
+  }
+
+  @Override
+  public String getRole() {
+    return role;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public void getRegisteredEvents() {
+    for (Event event : registeredEvents) {
+      System.out.println(event);
     }
-    public void setName(String name) {
-        this.name = name;
-    }
+  }
 
-    public int getStudentNumber() {
-        return studentNumber;
-    }
+  public String getCourse() {
+    return course;
+  }
 
-    @Override
-    public String getRole() {
-        return role;
-    }
+  public void setCourse(String course) {
+    this.course = course;
+  }
 
-    public void setEmail(String email) {
-        this.email = email;
+  // Logic
 
-    }
+  public void registerForEvent(EventStore tempEventStorage, int eventId) {
+    Event event =
+        tempEventStorage.findEventById(
+            eventId); // event to be registered for will be stored in the event variable
 
-    public void setStudentNumber(int studentNumber) {
-        this.studentNumber = studentNumber;
-    }
-
-    public List <Event> getRegisteredEvents() {
-        return registeredEvents;
-    }
-    public void setCourse(String course) {
-        this.course = course;
-    }
-    public String getCourse() {
-        return course;
-    }
-
-
-    //Logic
-
-    public void registerForEvent(EventStore tempEventStorage,int eventId) {
-        Event event= tempEventStorage.findEventById(eventId); //event to be registered for will be stored in the event variable
-
-
-        boolean successfulRegistration = event.registerStudent(this);
-        if (successfulRegistration) {
-            registeredEvents.add(event);
-            System.out.println(getName() + " registered for " + event.getEventName());
-        }
-
-    }
-
-    public void getEvents(EventStore tempEventStorage) {
-        for (Event e : tempEventStorage.getAllEvents()) {
-            System.out.println(e.getEventId() + ". "+e.getEventName());
-        }
+    if (event == null) {
+      System.out.println("Event not found. Please check the ID and try again.");
+      return;
     }
 
-    public void deregisterForEvent(EventStore tempEventStorage,int eventId) {
-        Event event= tempEventStorage.findEventById(eventId);
-        boolean studentDeregisterd=event.deregisterStudentFromEvent(this);
-        if (studentDeregisterd) {
-            registeredEvents.remove(event);
-            System.out.println(this.name + " deregistered for " + event.getEventName());
-        }
+    boolean successfulRegistration = event.registerStudent(this);
+    if (successfulRegistration) {
+      registeredEvents.add(event);
+      System.out.println(getName() + " registered for " + event.getEventName());
+    }
+  }
 
+  public void deregisterForEvent(EventStore tempEventStorage, int eventId) {
+    Event event = tempEventStorage.findEventById(eventId);
+
+    if (event == null) {
+      System.out.println("Event not found. Please check the ID and try again.");
+      return;
     }
 
-    public String viewRegistrationStatus(EventStore tempEventStorage,int eventId) {
+    boolean studentsDeregistered = event.deregisterStudentFromEvent(this);
+    if (studentsDeregistered) {
+      registeredEvents.remove(event);
+      System.out.println(this.name + " deregistered for " + event.getEventName());
+    }
+  }
 
-        Event event= tempEventStorage.findEventById(eventId);
-        List<Student> waitlist=event.getWaitlistedStudents();
-        List <Student> registeredStudents=event.getRegisteredStudents();
-        if (waitlist.contains(this)) {
-             return "You're currently number "+(waitlist.indexOf(this))+1 +"on the waitlist"+event.getWaitlistedStudents().size();
+  public String viewRegistrationStatus(EventStore tempEventStorage, int eventId) {
 
-        } else if (registeredStudents.contains(this)) {
+    Event event = tempEventStorage.findEventById(eventId);
+    if (event == null) {
+      return "Event not found. Please check the ID and try again.";
+    }
+    List<Student> waitlist = event.getWaitlistedStudents();
+    List<Student> registeredStudents = event.getRegisteredStudents();
 
-            return "You are currently registered for the "+event.getEventName()+" event";
-        }
+    if (waitlist.contains(this)) {
+      return "You're currently number " + (waitlist.indexOf(this)) + 1 + "on the waitlist";
 
+    } else if (registeredStudents.contains(this)) {
 
-        return "error in fetching data";
+      return "You are currently registered for the " + event.getEventName() + " event";
     }
 
-
-
-
+    return "error in fetching data";
+  }
 }
