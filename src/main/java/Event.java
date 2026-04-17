@@ -6,7 +6,7 @@ public class Event {
 
   private static int counter = 0;
   private final int eventId;
-  private final List<Student> waitlistedStudents = new ArrayList<>();
+  private final Queue<Student> waitlistedStudents = new LinkedList<>();
   private final List<Student> registeredStudents = new ArrayList<>();
   private String eventName;
   private LocalTime eventTime;
@@ -80,7 +80,7 @@ public class Event {
     this.maxParticipants = maxParticipants;
   }
 
-  public List<Student> getWaitlistedStudents() {
+  public Queue<Student> getWaitlistedStudents() {
     return waitlistedStudents;
   }
 

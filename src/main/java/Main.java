@@ -52,7 +52,7 @@ public class Main {
           while (!endprogram) {
             switch (action) {
               case "1":
-                student1.getEvents(eventStorage);
+                eventStorage.getAllEvents();
                 break;
 
               case "2":

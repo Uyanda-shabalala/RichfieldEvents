@@ -89,12 +89,18 @@ public class Student extends User {
     if (event == null) {
       return "Event not found. Please check the ID and try again.";
     }
-    List<Student> waitlist = event.getWaitlistedStudents();
+    Queue<Student> waitlist = event.getWaitlistedStudents();
     List<Student> registeredStudents = event.getRegisteredStudents();
 
     if (waitlist.contains(this)) {
-      return "You're currently number " + (waitlist.indexOf(this)) + 1 + "on the waitlist";
-
+      int count = 0;
+      for (Student s : waitlist) {
+        if (s.equals(this)) {
+          break;
+        }
+        count++;
+      }
+      return "You're currently number " + (count + 1) + " on the waitlist";
     } else if (registeredStudents.contains(this)) {
 
       return "You are currently registered for the " + event.getEventName() + " event";

@@ -4,6 +4,7 @@ import java.util.*;
 
 public class Staff extends User implements EventsManager {
   final String role = "Staff";
+  private final List<Staff> staffList = new ArrayList<>();
 
   public Staff(String name, String email, String role) {
     super(name, email);
