@@ -4,10 +4,23 @@ import java.util.*;
 
 public class Staff extends User implements EventsManager {
   final String role = "Staff";
-  private final List<Staff> staffList = new ArrayList<>();
 
-  public Staff(String name, String email, String role) {
+  public Staff(EventStore eventStore, String name, String email, String role) {
     super(name, email);
+    addStaffMember(eventStore, this);
+  }
+
+  public Staff(EventStore eventStore, String name) {
+    super();
+    this.name = name;
+  }
+
+  public static void addStaffMember(EventStore eventStore, Staff staff) {
+    if (eventStore.getAllStaff().contains(staff)) {
+      System.out.println("Staff Member already exists");
+    } else {
+      eventStore.addStaff(staff);
+    }
   }
 
   @Override
@@ -15,19 +28,33 @@ public class Staff extends User implements EventsManager {
     return role;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public String getName() {
+    return name;
   }
+
+  public void setName(String name) {
+    this.name = name.toLowerCase(Locale.ROOT);
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  // Logic
 
   public void setEmail(String email) {
     this.email = email;
   }
 
-  // Logic
-
   @Override
   public void showEvents(EventStore tempEventStore) {
-    tempEventStore.getAllEvents();
+    for (Event event : tempEventStore.getAllEvents()) {
+      System.out.println(
+          event.getEventId()
+              + event.getEventName()
+              + event.getEventTime()
+              + event.getEventLocation());
+    }
   }
 
   @Override
@@ -38,8 +65,28 @@ public class Staff extends User implements EventsManager {
       LocalTime eventTime,
       String eventLocation,
       int maxParticipants) {
+
+    if (eventName.isEmpty() || eventLocation.isEmpty()) {
+      System.out.println("Fields cannot be empty.");
+      return;
+    }
+
+    if (maxParticipants <= 0) {
+      System.out.println("Max participants must be greater than 0.");
+      return;
+    }
+
     Event event = new Event(eventName, eventDate, eventTime, eventLocation, maxParticipants);
-    tempEventStorage.addEvent(event);
+    if (tempEventStorage.findEventById(event.getEventId()) != null) {
+      System.out.println("Event ID already exists.");
+      return;
+    }
+    if (tempEventStorage.getAllEvents().contains(event)) {
+      System.out.println("Event already exists");
+    } else {
+
+      tempEventStorage.addEvent(event);
+    }
   }
 
   public void updateEvent(
@@ -84,6 +131,16 @@ public class Staff extends User implements EventsManager {
   }
 
   public void sortEvents(EventStore tempEventStore) {
-    List<Event> events = tempEventStore.getAllEvents();
+
+    System.out.println("Do you wish to sort by 1.Event Name or 2.Dates");
+    System.out.println("1.Event Name or 2.Dates");
+    Scanner sc = new Scanner(System.in);
+    String choice = sc.nextLine();
+
+    if (choice.equalsIgnoreCase("1")) {
+      Collections.sort(tempEventStore.getAllEvents(), Comparator.comparing(Event::getEventName));
+
+    } else if (choice.equalsIgnoreCase("2"))
+      Collections.sort(tempEventStore.getAllEvents(), Comparator.comparing(Event::getEventDate));
   }
 }

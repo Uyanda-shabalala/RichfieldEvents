@@ -30,6 +30,22 @@ public class Event {
     this.maxParticipants = maxParticipants;
   }
 
+  public Event(
+      int eventId,
+      String eventName,
+      LocalDate eventDate,
+      LocalTime eventTime,
+      String eventLocation,
+      int maxParticipants) {
+    this.eventId = eventId;
+    this.eventName = eventName;
+    this.eventDate = eventDate;
+    this.eventTime = eventTime;
+    this.eventLocation = eventLocation;
+    this.maxParticipants = maxParticipants;
+    counter = eventId;
+  }
+
   // getters and setters
   public int getEventId() {
     return eventId;
@@ -40,7 +56,7 @@ public class Event {
   }
 
   public void setEventName(String eventName) {
-    this.eventName = eventName;
+    this.eventName = eventName.toLowerCase(Locale.ROOT);
   }
 
   public LocalTime getEventTime() {
@@ -59,7 +75,7 @@ public class Event {
   }
 
   public void setEventLocation(String eventLocation) {
-    this.eventLocation = eventLocation;
+    this.eventLocation = eventLocation.toLowerCase();
   }
 
   public LocalDate getEventDate() {
@@ -110,6 +126,58 @@ public class Event {
 
   public boolean deregisterStudentFromEvent(Student student) {
 
-    return registeredStudents.remove(student);
+    boolean removed = registeredStudents.remove(student);
+
+    if (removed) {
+      System.out.println(student.getName() + " deregistered from " + eventName);
+
+      // If there are students on the waitlist, promote one
+      if (!waitlistedStudents.isEmpty()) {
+
+        Student promotedStudent = waitlistedStudents.poll(); // remove first in queue
+
+        // Run promotion in a separate thread
+        Thread promotionThread =
+            new Thread(
+                () -> {
+                  try {
+                    Thread.sleep(1000); // simulate background processing
+                  } catch (InterruptedException e) {
+                    System.out.println("Thread interrupted");
+                  }
+
+                  registeredStudents.add(promotedStudent);
+                  promotedStudent.getRegisteredEvents().add(this);
+
+                  System.out.println(
+                      "Registration cancelled. Student "
+                          + promotedStudent.getStudentNumber()
+                          + " has been promoted from the waitlist to the event: "
+                          + eventName);
+                });
+
+        promotionThread.start();
+      }
+    }
+
+    return removed;
+  }
+
+  @Override
+  public String toString() {
+    return "ID: "
+        + eventId
+        + " | Name: "
+        + eventName
+        + " | Date: "
+        + eventDate
+        + " | Time: "
+        + eventTime
+        + " | Location: "
+        + eventLocation
+        + " | Registered: "
+        + registeredStudents.size()
+        + " | Waitlist: "
+        + waitlistedStudents.size();
   }
 }

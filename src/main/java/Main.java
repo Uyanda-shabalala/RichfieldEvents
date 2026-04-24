@@ -8,6 +8,7 @@ public class Main {
   static void main(String[] args) {
 
     EventStore eventStorage = new EventStore();
+    FileManager.loadAll(eventStorage);
     Scanner sc = new Scanner(System.in);
 
     System.out.println("Welcome to the Richfield Events ");
@@ -43,9 +44,10 @@ public class Main {
       }
 
       Student student1 = new Student(name, studentNumber, course, email);
-      boolean endprogram = false;
+      eventStorage.addStudent(student1);
+      boolean endProgram = false;
 
-      while (!endprogram) {
+      while (!endProgram) {
 
         System.out.println("What would you like to do?");
         System.out.println("===============================================================");
@@ -53,7 +55,9 @@ public class Main {
         System.out.println("2. View Events You've registered for");
         System.out.println("3. Register for event");
         System.out.println("4. Deregister from event");
-        System.out.println("5. Exit");
+        System.out.println("5. Search for event");
+        System.out.println("6.View registration status");
+        System.out.println("7. Exit");
         System.out.println("===============================================================");
         String action = sc.nextLine();
 
@@ -89,7 +93,22 @@ public class Main {
             break;
 
           case "5":
-            endprogram = true;
+            System.out.println("Enter event Name to search for event: ");
+            String eventName = sc.nextLine();
+
+            for (Event e : eventStorage.search(eventName)) {
+              System.out.println(e.getEventName());
+              System.out.println();
+            }
+            break;
+
+          case "6":
+            System.out.println("Enter event ID to search for event: ");
+            int eventId = Integer.parseInt(sc.nextLine());
+            System.out.println(student1.viewRegistrationStatus(eventStorage, eventId));
+            break;
+          case "7":
+            endProgram = true;
             FileManager.saveAll(eventStorage);
             break;
 
@@ -103,10 +122,16 @@ public class Main {
       System.out.println("Role: Staff");
       System.out.println("Please enter your name: ");
       String name = sc.nextLine();
-      System.out.println("Please enter your email: ");
-      String email = sc.nextLine();
+      Staff staff1;
 
-      Staff staff1 = new Staff(eventStorage, name, email, "Staff");
+      if (!eventStorage.doesUserExist(name)) {
+        System.out.println("Please enter your email: ");
+        String email = sc.nextLine();
+        staff1 = new Staff(eventStorage, name, email, "Staff");
+      } else {
+        staff1 = new Staff(eventStorage, name);
+      }
+
       boolean endProgram = false;
 
       while (!endProgram) {
@@ -118,8 +143,9 @@ public class Main {
         System.out.println("3. Cancel an event");
         System.out.println("4. Update an event");
         System.out.println("5. View participants and waitlists");
-        System.out.println("6. Sort Events by Date");
-        System.out.println("7. End program");
+        System.out.println("6. Sort Events");
+        System.out.println("7. Search for event");
+        System.out.println("8. End program");
         System.out.println("============================================================");
         String action = sc.nextLine();
 
@@ -190,9 +216,19 @@ public class Main {
 
           case "6":
             staff1.sortEvents(eventStorage);
+
             break;
 
           case "7":
+            System.out.println("Enter event Name to search for event: ");
+            String eventName = sc.nextLine();
+            for (Event e : eventStorage.search(eventName)) {
+              System.out.println(e);
+            }
+
+            break;
+
+          case "8":
             endProgram = true;
             FileManager.saveAll(eventStorage);
             break;

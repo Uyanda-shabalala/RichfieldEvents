@@ -5,9 +5,19 @@ import java.util.*;
 // in event storage is where we would store/ read data from the text
 
 public class EventStore {
-  private final List<Event> events = new ArrayList<>();
+  private final ArrayList<Event> events = new ArrayList<>();
   private final Map<Integer, Event> eventsById = new HashMap<>();
   private final List<Student> students = new ArrayList<>();
+  private final List<Staff> staff = new ArrayList<>();
+
+  public Boolean doesUserExist(String name) {
+    for (Staff staff1 : this.staff) {
+      if (staff1.getName().equalsIgnoreCase(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   public Event findEventById(int id) {
 
@@ -19,11 +29,7 @@ public class EventStore {
     eventsById.put(event.getEventId(), event);
   }
 
-  public List<Event> getAllEvents() {
-
-    for (Event e : events) {
-      System.out.println(e.getEventId() + ". " + e.getEventName());
-    }
+  public ArrayList<Event> getAllEvents() {
 
     return events;
   }
@@ -52,5 +58,29 @@ public class EventStore {
 
   public List<Student> getAllStudents() {
     return students;
+  }
+
+  public void addStudent(Student student) {
+    students.add(student);
+  }
+
+  public List<Staff> getAllStaff() {
+    return staff;
+  }
+
+  public void addStaff(Staff staffMember) {
+    staff.add(staffMember);
+  }
+
+  public List<Event> search(String eventName) {
+    eventName = eventName.toLowerCase();
+    List<Event> eventsMatchingSearch = new ArrayList<>();
+
+    for (Event event : events) {
+      if (event.getEventName().toLowerCase().contains(eventName)) {
+        eventsMatchingSearch.add(event);
+      }
+    }
+    return eventsMatchingSearch;
   }
 }

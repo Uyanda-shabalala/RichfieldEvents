@@ -3,19 +3,19 @@ import java.util.*;
 public class Student extends User {
 
   final String role = "Student";
-  List<Event> registeredEvents =
+  private final List<Event> registeredEvents =
       new ArrayList<>(); // stores events the student object is registered for
   private int studentNumber;
   private String course;
 
   public Student(String name, int studentNumber, String course, String email) {
     super(name, email);
-
     this.course = course;
+    this.studentNumber = studentNumber;
   }
 
   public void setName(String name) {
-    this.name = name;
+    this.name = name.toLowerCase(Locale.ROOT);
   }
 
   public int getStudentNumber() {
@@ -35,21 +35,23 @@ public class Student extends User {
     this.email = email;
   }
 
-  public void getRegisteredEvents() {
+  public List<Event> getRegisteredEvents() {
     for (Event event : registeredEvents) {
       System.out.println(event);
     }
+
+    return registeredEvents;
   }
 
   public String getCourse() {
     return course;
   }
 
+  // Logic
+
   public void setCourse(String course) {
     this.course = course;
   }
-
-  // Logic
 
   public void registerForEvent(EventStore tempEventStorage, int eventId) {
     Event event =
@@ -69,6 +71,7 @@ public class Student extends User {
   }
 
   public void deregisterForEvent(EventStore tempEventStorage, int eventId) {
+
     Event event = tempEventStorage.findEventById(eventId);
 
     if (event == null) {
@@ -76,10 +79,17 @@ public class Student extends User {
       return;
     }
 
-    boolean studentsDeregistered = event.deregisterStudentFromEvent(this);
-    if (studentsDeregistered) {
+    // Try remove from registered list (this will trigger thread if needed)
+    boolean removedFromRegistered = event.deregisterStudentFromEvent(this);
+
+    // Also check if student is in waitlist
+    boolean removedFromWaitlist = event.getWaitlistedStudents().remove(this);
+
+    if (removedFromRegistered || removedFromWaitlist) {
       registeredEvents.remove(event);
-      System.out.println(this.name + " deregistered for " + event.getEventName());
+      System.out.println(this.name + " successfully deregistered.");
+    } else {
+      System.out.println("You are not registered or waitlisted for this event.");
     }
   }
 
